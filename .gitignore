@@ -1,0 +1,16 @@
+﻿# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+
+# Platform folders not needed for web hosting
+windows/
+macos/
+linux/
+android/
+ios/
+
+# Env/secrets
+.env
