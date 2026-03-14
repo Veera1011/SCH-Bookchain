@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../providers/providers.dart';
 import '../../widgets/navigation/responsive_navigation.dart';
@@ -36,13 +35,9 @@ class AdminHome extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SvgPicture.asset(
-                      'assets/images/sch_logo.svg',
+                    Image.asset(
+                      'assets/images/sch_logo.png',
                       height: 40,
-                      colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.primary,
-                        BlendMode.srcIn,
-                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -106,9 +101,14 @@ class AdminHome extends ConsumerWidget {
           label: 'Analytics',
         ),
         const NavigationDestination(
+          icon: Icon(Icons.inventory_2_outlined),
+          selectedIcon: Icon(Icons.inventory_2),
+          label: 'Inventory',
+        ),
+        const NavigationDestination(
           icon: Icon(Icons.library_books_outlined),
           selectedIcon: Icon(Icons.library_books),
-          label: 'Inventory',
+          label: 'Books',
         ),
         const NavigationDestination(
           icon: Icon(Icons.people_outline),
@@ -152,18 +152,20 @@ class AdminHome extends ConsumerWidget {
   static int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
     if (location == '/admin') return 0;
-    if (location.startsWith('/admin/books')) return 1;
-    if (location.startsWith('/admin/users')) return 2;
-    if (location.startsWith('/admin/borrows')) return 3;
+    if (location == '/admin/discovery') return 1;
+    if (location.startsWith('/admin/books')) return 2;
+    if (location.startsWith('/admin/users')) return 3;
+    if (location.startsWith('/admin/borrows')) return 4;
     return 0;
   }
 
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
       case 0: context.go('/admin'); break;
-      case 1: context.go('/admin/books'); break;
-      case 2: context.go('/admin/users'); break;
-      case 3: context.go('/admin/borrows'); break;
+      case 1: context.go('/admin/discovery'); break;
+      case 2: context.go('/admin/books'); break;
+      case 3: context.go('/admin/users'); break;
+      case 4: context.go('/admin/borrows'); break;
     }
   }
 

@@ -21,6 +21,18 @@ class BorrowService {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
 
+    // ✅ CHECK FOR DUPLICATE BORROW
+    final activeBorrows = await _supabase
+        .from('borrow_records')
+        .select()
+        .eq('user_id', user.id)
+        .eq('book_id', bookId)
+        .inFilter('status', ['borrowed', 'overdue']);
+    
+    if ((activeBorrows as List).isNotEmpty) {
+      throw Exception('You have already borrowed this book and not returned it yet.');
+    }
+
     final profileData = await _supabase
         .from('profiles')
         .select('name')

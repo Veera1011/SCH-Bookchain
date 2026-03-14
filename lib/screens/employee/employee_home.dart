@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../providers/providers.dart';
@@ -40,13 +39,9 @@ class EmployeeHome extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SvgPicture.asset(
-                      'assets/images/sch_logo.svg',
+                    Image.asset(
+                      'assets/images/sch_logo.png',
                       height: 40,
-                      colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.primary,
-                        BlendMode.srcIn,
-                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -96,6 +91,11 @@ class EmployeeHome extends ConsumerWidget {
       ),
       destinations: const [
         NavigationDestination(
+          icon: Icon(Icons.auto_awesome_outlined),
+          selectedIcon: Icon(Icons.auto_awesome),
+          label: 'Discover',
+        ),
+        NavigationDestination(
           icon: Icon(Icons.search_outlined),
           selectedIcon: Icon(Icons.search),
           label: 'Browse',
@@ -117,17 +117,19 @@ class EmployeeHome extends ConsumerWidget {
 
   static int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/home')) return 0;
-    if (location.startsWith('/my-books')) return 1;
-    if (location.startsWith('/profile')) return 2;
+    if (location == '/home') return 0;
+    if (location.startsWith('/browse')) return 1;
+    if (location.startsWith('/my-books')) return 2;
+    if (location.startsWith('/profile')) return 3;
     return 0;
   }
 
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
       case 0: context.go('/home'); break;
-      case 1: context.go('/my-books'); break;
-      case 2: context.go('/profile'); break;
+      case 1: context.go('/browse'); break;
+      case 2: context.go('/my-books'); break;
+      case 3: context.go('/profile'); break;
     }
   }
   Widget _buildDrawerItem(

@@ -131,6 +131,18 @@ class BookService {
         );
   }
 
+  Stream<List<BookModel>> watchAllBooks() {
+    return _supabase
+        .from('books')
+        .stream(primaryKey: ['id'])
+        .map(
+          (list) => list
+              .where((e) => e['is_active'] == true)
+              .map((e) => BookModel.fromJson(e))
+              .toList(),
+        );
+  }
+
   // ── Upload Book Cover ─────────────────────────────────────────────────────
   Future<String> uploadBookCover(Uint8List bytes, String fileName) async {
     final extension = fileName.split('.').last;

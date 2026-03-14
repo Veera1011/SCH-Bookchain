@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glassmorphism/glassmorphism.dart';
+import '../../models/location_model.dart';
 import '../../providers/providers.dart';
 import '../../widgets/common/loading_shimmers.dart';
 
@@ -93,10 +94,23 @@ class ProfileScreen extends ConsumerWidget {
                   child: Column(
                     children: [
                       Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.admin_panel_settings, color: Colors.blue),
-                          title: const Text('Role'),
-                          trailing: Text(profile.role.toUpperCase()),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.admin_panel_settings, color: Colors.blue),
+                              title: const Text('Role'),
+                              trailing: Text(profile.role.toUpperCase()),
+                            ),
+                            const Divider(height: 1),
+                            ListTile(
+                              leading: const Icon(Icons.location_on_outlined, color: Colors.green),
+                              title: const Text('Office Location'),
+                              trailing: Text(ref.watch(locationsProvider).maybeWhen(
+                                data: (locs) => locs.firstWhere((l) => l.id == profile.locationId, orElse: () => LocationModel(id: '', name: 'N/A', city: '', isActive: true)).name,
+                                orElse: () => 'Loading...',
+                              )),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 32),

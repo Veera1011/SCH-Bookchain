@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../models/location_model.dart';
 import '../../providers/providers.dart';
 
 class UserDetailScreen extends ConsumerStatefulWidget {
@@ -21,6 +22,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
     ref.invalidate(pendingUsersProvider);
     ref.invalidate(activeUsersProvider);
     ref.invalidate(allUsersProvider);
+    ref.invalidate(currentProfileProvider); // Profile might have changed
   }
 
   Future<void> _approveUser() async {
@@ -138,12 +140,83 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
     );
   }
 
-  Future<void> _reactivateUser() async {
+  Future<void> _showChangeLocationDialog(String? currentLocationId) async {
+    final locationsAsync = ref.read(locationsProvider);
+    if (locationsAsync.value == null) return;
+
+    String? selectedLocationId = currentLocationId;
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Change Location'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView(
+              shrinkWrap: true,
+              children: locationsAsync.value!.map((loc) {
+                return RadioListTile<String>(
+                  title: Text(loc.name.toUpperCase()),
+                  subtitle: Text(loc.city),
+                  value: loc.id,
+                  groupValue: selectedLocationId,
+                  onChanged: (val) {
+                    setDialogState(() => selectedLocationId = val);
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                if (selectedLocationId == currentLocationId) return;
+                
+                setState(() => _isLoading = true);
+                try {
+                  await ref.read(adminServiceProvider).updateUserLocation(widget.userId, selectedLocationId!);
+                  _invalidateAll(ref);
+                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Location updated')));
+                } catch (e) {
+                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                } finally {
+                  if (mounted) setState(() => _isLoading = false);
+                }
+              },
+              child: const Text('Update'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _deleteUser() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete User'),
+        content: const Text('Permanently delete this user profile?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
     setState(() => _isLoading = true);
     try {
-      await ref.read(adminServiceProvider).reactivateUser(widget.userId);
+      await ref.read(adminServiceProvider).deleteUser(widget.userId);
       _invalidateAll(ref);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User reactivated')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User deleted')));
+        context.pop();
+      }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
@@ -164,8 +237,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
             case 'active': statusColor = Colors.green; break;
             case 'pending': statusColor = Colors.orange; break;
             case 'rejected': statusColor = Colors.red; break;
-            case 'suspended': statusColor = Colors.grey; break;
-            default: statusColor = Colors.black;
+            default: statusColor = Colors.grey;
           }
 
           return SingleChildScrollView(
@@ -206,6 +278,23 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
                         const Divider(),
                         ListTile(title: const Text('Submitted on'), trailing: Text(DateFormat.yMMMd().format(user.createdAt.toLocal()))),
                         ListTile(title: const Text('Department'), trailing: Text(user.department ?? 'N/A')),
+                        ListTile(
+                          title: const Text('Location'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(ref.watch(locationsProvider).maybeWhen(
+                                data: (locs) => locs.firstWhere((l) => l.id == user.locationId, orElse: () => LocationModel(id: '', name: 'N/A', city: '', isActive: true)).name,
+                                orElse: () => 'Loading...',
+                              )),
+                              if (user.status == 'active')
+                                IconButton(
+                                  icon: const Icon(Icons.edit_location_alt_outlined, size: 20),
+                                  onPressed: () => _showChangeLocationDialog(user.locationId),
+                                ),
+                            ],
+                          ),
+                        ),
                         ListTile(title: const Text('Role'), trailing: Text(user.role.toUpperCase())),
                         if (user.rejectionReason != null)
                           ListTile(
@@ -242,18 +331,18 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
                     ),
                     const SizedBox(height: 16),
                     OutlinedButton(
-                      style: OutlinedButton.styleFrom(foregroundColor: Colors.orange, side: const BorderSide(color: Colors.orange)),
-                      onPressed: () {
-                        // Normally trigger suspend dialog
-                      },
-                      child: const Text('Suspend User'),
+                      style: OutlinedButton.styleFrom(foregroundColor: Colors.red, side: const BorderSide(color: Colors.red)),
+                      onPressed: _deleteUser,
+                      child: const Text('Delete User'),
                     ),
-                  ] else if (user.status == 'rejected' || user.status == 'suspended') ...[
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                      icon: const Icon(Icons.restore),
-                      label: const Text('Reactivate User'),
-                      onPressed: _reactivateUser,
+                  ] else if (user.status == 'rejected') ...[
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        'This registration was rejected. Please contact the administrator for further clarification.',
+                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ]
                 ],

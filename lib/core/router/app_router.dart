@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,7 +11,9 @@ import '../../screens/auth/pending_approval_screen.dart';
 import '../../screens/auth/rejected_screen.dart';
 import '../../screens/employee/employee_home.dart';
 import '../../screens/employee/browse_books_screen.dart';
-import '../../screens/employee/book_detail_screen.dart';
+import '../../screens/employee/book_details_screen.dart';
+import '../../screens/employee/employee_discovery_screen.dart';
+import '../../screens/admin/admin_inventory_overview_screen.dart';
 import '../../screens/employee/borrow_book_screen.dart';
 import '../../screens/employee/my_books_screen.dart';
 import '../../screens/employee/return_book_screen.dart';
@@ -64,7 +65,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return '/pending-approval';
         }
         
-        if ((currentProfile.isRejected || currentProfile.isSuspended) && state.uri.path != '/rejected') {
+        if (currentProfile.isRejected && state.uri.path != '/rejected') {
           return '/rejected';
         }
 
@@ -116,10 +117,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const QrScannerScreen(),
       ),
       GoRoute(
-        path: '/book/:id',
+        path: '/book-details/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
-          return BookDetailScreen(bookId: id);
+          return BookDetailsScreen(bookId: id);
         },
       ),
       GoRoute(
@@ -141,6 +142,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/home',
+            builder: (context, state) => const EmployeeDiscoveryScreen(),
+          ),
+          GoRoute(
+            path: '/browse',
             builder: (context, state) => const BrowseBooksScreen(),
           ),
           GoRoute(
@@ -159,6 +164,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/admin',
             builder: (context, state) => const AnalyticsScreen(),
+          ),
+          GoRoute(
+            path: '/admin/discovery',
+            builder: (context, state) => const AdminInventoryOverviewScreen(),
           ),
           GoRoute(
             path: '/admin/books',

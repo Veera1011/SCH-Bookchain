@@ -29,8 +29,6 @@ class _BorrowBookScreenState extends ConsumerState<BorrowBookScreen> {
     'Personal interest in the subject matter',
     'Preparing for an upcoming certification',
   ];
-
-  // Verify the typed/scanned ISBN against the book's ISBN
   void _verifyIsbn(String bookIsbn) {
     final entered = _isbnController.text.trim().replaceAll('-', '').replaceAll(' ', '');
     final expected = bookIsbn.replaceAll('-', '').replaceAll(' ', '');
@@ -197,16 +195,6 @@ class _BorrowBookScreenState extends ConsumerState<BorrowBookScreen> {
                               ),
                             ],
                           ),
-                          if (hasIsbn) ...[
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.qr_code_2, size: 15, color: colorScheme.primary),
-                                const SizedBox(width: 6),
-                                Text('ISBN: $bookIsbn', style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7))),
-                              ],
-                            ),
-                          ],
                         ],
                       ),
                     ),

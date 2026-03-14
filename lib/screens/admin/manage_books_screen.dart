@@ -10,9 +10,42 @@ class ManageBooksScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final booksAsync = ref.watch(booksProvider);
+    final locationsAsync = ref.watch(locationsProvider);
+    final selectedLocation = ref.watch(selectedLocationProvider);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: locationsAsync.maybeWhen(
+          data: (locs) => SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                ChoiceChip(
+                  label: const Text('ALL LOCATIONS'),
+                  selected: selectedLocation == null,
+                  onSelected: (val) {
+                    if (val) ref.read(selectedLocationProvider.notifier).state = null;
+                  },
+                ),
+                ...locs.map((loc) => Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: ChoiceChip(
+                    label: Text(loc.name.toUpperCase()),
+                    selected: selectedLocation == loc.id,
+                    onSelected: (val) {
+                      if (val) ref.read(selectedLocationProvider.notifier).state = loc.id;
+                    },
+                  ),
+                )),
+              ],
+            ),
+          ),
+          orElse: () => const Text('Inventory'),
+        ),
+      ),
       body: booksAsync.when(
         data: (books) {
           if (books.isEmpty) {

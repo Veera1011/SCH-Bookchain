@@ -36,7 +36,6 @@ class ProfileModel {
   bool get isActive => status == 'active';
   bool get isPending => status == 'pending';
   bool get isRejected => status == 'rejected';
-  bool get isSuspended => status == 'suspended';
   bool get isAdmin => role == 'super_admin' || role == 'location_admin';
   bool get canAccess => status == 'active';
 

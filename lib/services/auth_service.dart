@@ -55,6 +55,7 @@ class AuthService {
     final response = await _supabase.auth.signUp(
       email: email,
       password: password,
+      // emailRedirectTo is not set to avoid unnecessary redirect flows
     );
     
     if (response.user == null) {

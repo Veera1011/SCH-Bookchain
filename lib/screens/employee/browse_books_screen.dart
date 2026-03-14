@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../../providers/providers.dart';
 import '../../widgets/book/book_card.dart';
 import '../../widgets/common/loading_shimmers.dart';
@@ -16,23 +17,6 @@ class BrowseBooksScreen extends ConsumerStatefulWidget {
 class _BrowseBooksScreenState extends ConsumerState<BrowseBooksScreen> {
   final _searchController = TextEditingController();
   Timer? _debounce;
-  final List<String> _genres = [
-    'All',
-    'Leadership',
-    'Technology',
-    'Finance',
-    'Self-Help',
-    'Management',
-    'Marketing',
-    'Design',
-    'Psychology',
-    'History',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -53,6 +37,8 @@ class _BrowseBooksScreenState extends ConsumerState<BrowseBooksScreen> {
   @override
   Widget build(BuildContext context) {
     final filter = ref.watch(booksFilterProvider);
+    final size = MediaQuery.of(context).size;
+    final isDesktop = size.width > 900;
     final booksAsync = ref.watch(booksProvider);
 
     return Scaffold(
@@ -79,35 +65,26 @@ class _BrowseBooksScreenState extends ConsumerState<BrowseBooksScreen> {
               onChanged: _onSearchChanged,
             ),
           ),
-          SizedBox(
-            height: 48,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: _genres.length,
-              itemBuilder: (context, index) {
-                final genre = _genres[index];
-                final isSelected =
-                    filter.genre == genre ||
-                    (filter.genre == null && genre == 'All');
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    label: Text(genre),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      ref
-                          .read(booksFilterProvider.notifier)
-                          .update(
-                            (state) => state.copyWith(
-                              genre: genre == 'All' ? null : genre,
-                            ),
-                          );
-                    },
+          booksAsync.when(
+            data: (books) {
+              if (books.isEmpty && filter.searchQuery?.isEmpty == true) {
+                return const Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.library_books_outlined, size: 64, color: Colors.grey),
+                        SizedBox(height: 16),
+                        Text('Your local library is ready.', style: TextStyle(color: Colors.grey)),
+                      ],
+                    ),
                   ),
                 );
-              },
-            ),
+              }
+              return const SizedBox.shrink();
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -151,39 +128,20 @@ class _BrowseBooksScreenState extends ConsumerState<BrowseBooksScreen> {
           ),
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () async {
-                return ref.refresh(booksProvider);
-              },
+                onRefresh: () => ref.refresh(booksProvider.future),
               child: booksAsync.when(
                 data: (books) {
                   if (books.isEmpty) {
-                    return ListView(
-                      children: const [
-                        SizedBox(height: 100),
-                        Center(
-                          child: Text(
-                            'No books found.',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    );
+                    return const Center(child: Text('No books found for your search.'));
                   }
-                  return GridView.builder(
-                    padding: const EdgeInsets.all(16),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.6,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
+                  return MasonryGridView.count(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    crossAxisCount: isDesktop ? 6 : (size.width > 600 ? 3 : 2),
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
                     itemCount: books.length,
                     itemBuilder: (context, index) {
-                      final book = books[index];
-                      return BookCard(
-                        book: book,
-                      );
+                      return BookCard(book: books[index]);
                     },
                   );
                 },

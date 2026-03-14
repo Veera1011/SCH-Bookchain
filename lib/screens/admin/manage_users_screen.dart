@@ -111,8 +111,8 @@ class _ActiveUsersList extends ConsumerWidget {
                       onSelected: (value) async {
                         if (value == 'view') {
                           context.push('/admin/users/${user.id}');
-                        } else if (value == 'suspend') {
-                          _showSuspendDialog(context, ref, user.id);
+                        } else if (value == 'delete') {
+                          _showDeleteDialog(context, ref, user.id);
                         }
                       },
                       itemBuilder: (context) => [
@@ -121,9 +121,9 @@ class _ActiveUsersList extends ConsumerWidget {
                           child: Text('Manage Role/View'),
                         ),
                         const PopupMenuItem(
-                          value: 'suspend',
+                          value: 'delete',
                           child: Text(
-                            'Suspend',
+                            'Delete User',
                             style: TextStyle(color: Colors.red),
                           ),
                         ),
@@ -142,16 +142,12 @@ class _ActiveUsersList extends ConsumerWidget {
     );
   }
 
-  void _showSuspendDialog(BuildContext context, WidgetRef ref, String userId) {
-    final reasonController = TextEditingController();
+  void _showDeleteDialog(BuildContext context, WidgetRef ref, String userId) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Suspend User'),
-        content: TextField(
-          controller: reasonController,
-          decoration: const InputDecoration(labelText: 'Reason for suspension'),
-        ),
+        title: const Text('Delete User'),
+        content: const Text('Are you sure you want to permanently delete this user? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -159,15 +155,14 @@ class _ActiveUsersList extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () async {
-              if (reasonController.text.isEmpty) return;
               await ref
                   .read(adminServiceProvider)
-                  .suspendUser(userId, reasonController.text);
+                  .deleteUser(userId);
               ref.invalidate(activeUsersProvider);
               ref.invalidate(allUsersProvider);
               if (context.mounted) Navigator.pop(context);
             },
-            child: const Text('Suspend', style: TextStyle(color: Colors.red)),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -204,11 +199,8 @@ class _AllUsersList extends ConsumerWidget {
                 case 'rejected':
                   statusColor = Colors.red;
                   break;
-                case 'suspended':
-                  statusColor = Colors.grey;
-                  break;
                 default:
-                  statusColor = Colors.black;
+                  statusColor = Colors.grey;
               }
 
               return ListTile(

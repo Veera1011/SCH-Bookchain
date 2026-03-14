@@ -37,14 +37,13 @@ class ResponsiveNavigation extends StatelessWidget {
       appBar: AppBar(
         leading: leading ?? (drawer != null ? Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu_open_rounded, color: Colors.white),
+            icon: Icon(Icons.menu_open_rounded, color: colorScheme.primary),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ) : null),
-        title: title ?? SvgPicture.asset(
-          'assets/images/sch_logo.svg', 
+        title: title ?? Image.asset(
+          'assets/images/sch_logo.png', 
           height: 28,
-          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
         ),
         actions: actions?.where((a) {
           // Filter out notification icon if it's the bell
@@ -55,22 +54,11 @@ class ResponsiveNavigation extends StatelessWidget {
           return true;
         }).map((a) => Theme(
           data: Theme.of(context).copyWith(
-            iconTheme: const IconThemeData(color: Colors.white),
+            iconTheme: IconThemeData(color: colorScheme.primary),
           ),
           child: a,
         )).toList(),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                colorScheme.primary,
-                colorScheme.primary.withOpacity(0.9),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
+        flexibleSpace: null,
         elevation: isDesktop ? 2 : 4,
         centerTitle: !isDesktop,
       ),

@@ -85,25 +85,25 @@ class AdminService {
         .eq('id', userId);
   }
 
-  // ── Suspend User ──────────────────────────────────────────────────────────
-  Future<void> suspendUser(String userId, String reason) async {
+  // ── Delete User ──────────────────────────────────────────────────────────
+  Future<void> deleteUser(String userId) async {
+    // This deletes the profile record. 
+    // Note: To delete from auth.users, an Edge Function would be needed.
+    // Deleting the profile prevents them from accessing app-specific data.
     await _supabase
         .from('profiles')
-        .update({'status': 'suspended', 'rejection_reason': reason})
-        .eq('id', userId);
-  }
-
-  // ── Reactivate User ───────────────────────────────────────────────────────
-  Future<void> reactivateUser(String userId) async {
-    await _supabase
-        .from('profiles')
-        .update({'status': 'active', 'rejection_reason': null})
+        .delete()
         .eq('id', userId);
   }
 
   // ── Update Role ───────────────────────────────────────────────────────────
   Future<void> updateUserRole(String userId, String newRole) async {
     await _supabase.from('profiles').update({'role': newRole}).eq('id', userId);
+  }
+
+  // ── Update Location ───────────────────────────────────────────────────────
+  Future<void> updateUserLocation(String userId, String locationId) async {
+    await _supabase.from('profiles').update({'location_id': locationId}).eq('id', userId);
   }
 
   // ── Pending Count (one-time) ──────────────────────────────────────────────

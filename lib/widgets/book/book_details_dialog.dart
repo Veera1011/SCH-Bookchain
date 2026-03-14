@@ -75,10 +75,6 @@ class BookDetailsDialog extends StatelessWidget {
                       book.description ?? 'No description available for this book.',
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7), height: 1.5),
                     ),
-                    if (book.isbn != null && book.isbn!.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      _buildInfoRow(context, Icons.qr_code_2, 'ISBN', book.isbn!),
-                    ],
                     const SizedBox(height: 32),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(

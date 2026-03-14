@@ -18,24 +18,20 @@ class RejectedScreen extends ConsumerWidget {
             child: profileAsync.when(
               data: (profile) {
                 if (profile == null) return const SizedBox.shrink();
-                final isSuspended = profile.isSuspended;
-                final title = isSuspended ? 'Account Suspended' : 'Access Not Approved';
-                final reason = profile.rejectionReason;
-
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.cancel, size: 80, color: Colors.red),
                     const SizedBox(height: 24),
                     Text(
-                      title,
+                      'Access Not Approved',
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.red,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    if (reason != null && reason.isNotEmpty)
+                    if (profile.rejectionReason != null && profile.rejectionReason!.isNotEmpty)
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -44,7 +40,7 @@ class RejectedScreen extends ConsumerWidget {
                           border: Border.all(color: Colors.red.shade200),
                         ),
                         child: Text(
-                          'Reason: $reason',
+                          'Reason: ${profile.rejectionReason}',
                           style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
                           textAlign: TextAlign.center,
                         ),

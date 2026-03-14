@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:glassmorphism/glassmorphism.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/book_model.dart';
-import 'book_details_dialog.dart';
 
 class BookCard extends StatelessWidget {
   final BookModel book;
@@ -10,17 +10,10 @@ class BookCard extends StatelessWidget {
 
   const BookCard({super.key, required this.book, this.onTap});
 
-  void _showDetails(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => BookDetailsDialog(book: book),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap ?? () => _showDetails(context),
+      onTap: onTap ?? () => context.push('/book-details/${book.id}'),
       child: GlassmorphicContainer(
         width: double.infinity,
         height: 280, // Fixed height for grid consistency
@@ -51,40 +44,43 @@ class BookCard extends StatelessWidget {
             children: [
               Expanded(
                 flex: 3,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    book.coverUrl != null
-                        ? CachedNetworkImage(
-                            imageUrl: book.coverUrl!,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Container(color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3)),
-                            errorWidget: (context, url, error) => Container(
+                child: Hero(
+                  tag: 'book-hero-${book.id}',
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      book.coverUrl != null
+                          ? CachedNetworkImage(
+                              imageUrl: book.coverUrl!,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3)),
+                              errorWidget: (context, url, error) => Container(
+                                color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                                child: Icon(Icons.book, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              ),
+                            )
+                          : Container(
                               color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
                               child: Icon(Icons.book, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
-                          )
-                        : Container(
-                            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-                            child: Icon(Icons.book, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          ),
-                    if (!book.isAvailable)
-                      Positioned(
-                        top: 10,
-                        left: 10,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Text(
-                            'NOT AVAILABLE',
-                            style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                      if (!book.isAvailable)
+                        Positioned(
+                          top: 10,
+                          left: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              'NOT AVAILABLE',
+                              style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                            ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Expanded(

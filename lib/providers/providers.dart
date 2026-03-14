@@ -138,52 +138,63 @@ final booksProvider = StreamProvider.autoDispose<List<BookModel>>((ref) {
   
   final selectedLocation = ref.watch(selectedLocationProvider);
 
-  // Determine which location ID to use
-  String? effectiveLocationId = selectedLocation;
+  final profile = profileAsync.value;
+  final locations = locationsAsync.value;
 
-  // Fallback 1: User's assigned profile location
-  if (effectiveLocationId == null && profileAsync.value?.locationId != null) {
-    effectiveLocationId = profileAsync.value!.locationId;
+  String? effectiveLocationId;
+  if (profile != null) {
+    if (profile.role == 'employee') {
+      effectiveLocationId = profile.locationId;
+    } else {
+      effectiveLocationId = selectedLocation ?? profile.locationId;
+    }
   }
 
-  // Fallback 2: First available location in the system
-  if (effectiveLocationId == null && locationsAsync.value != null && locationsAsync.value!.isNotEmpty) {
-    effectiveLocationId = locationsAsync.value!.first.id;
+  if (effectiveLocationId == null && locations != null && locations.isNotEmpty) {
+    effectiveLocationId = locations.first.id;
   }
 
-  if (effectiveLocationId == null) return Stream.value([]);
+  if (effectiveLocationId == null) {
+    return bookService.watchAllBooks().map((books) {
+      return _filterBooks(books, filter);
+    });
+  }
 
   return bookService.watchBooks(effectiveLocationId).map((books) {
-    var filtered = books;
-    
-    // 1. Genre Filter
-    if (filter.genre != null && filter.genre != 'All') {
-      filtered = filtered.where((b) {
-        final genres = List<String>.from(b.genre);
-        return genres.contains(filter.genre);
-      }).toList();
-    }
-    
-    // 2. Availability Filter
-    if (filter.availableOnly) {
-      filtered = filtered.where((b) => b.availableCopies > 0).toList();
-    }
-    
-    // 3. Search Query Filter
-    if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
-      final query = filter.searchQuery!.toLowerCase();
-      filtered = filtered.where((b) => 
-        b.title.toLowerCase().contains(query) || 
-        b.author.toLowerCase().contains(query)
-      ).toList();
-    }
-    
-    // 4. Sort descending by creation date
-    filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    
-    return filtered;
+    return _filterBooks(books, filter);
   });
 });
+
+List<BookModel> _filterBooks(List<BookModel> books, BookFilter filter) {
+  var filtered = books;
+  
+  // 1. Genre Filter
+  if (filter.genre != null && filter.genre != 'All') {
+    filtered = filtered.where((b) {
+      final genres = List<String>.from(b.genre);
+      return genres.contains(filter.genre);
+    }).toList();
+  }
+  
+  // 2. Availability Filter
+  if (filter.availableOnly) {
+    filtered = filtered.where((b) => b.availableCopies > 0).toList();
+  }
+  
+  // 3. Search Query Filter
+  if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
+    final query = filter.searchQuery!.toLowerCase();
+    filtered = filtered.where((b) => 
+      b.title.toLowerCase().contains(query) || 
+      b.author.toLowerCase().contains(query)
+    ).toList();
+  }
+  
+  // 4. Sort descending by creation date
+  filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  
+  return filtered;
+}
 
 final bookByIdProvider = FutureProvider.autoDispose.family<BookModel, String>((
   ref,

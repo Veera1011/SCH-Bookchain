@@ -13,14 +13,9 @@ class AppTheme {
 
   // Dynamic Theme Builder
   static ThemeData buildTheme(String hexPrimary, bool isDark) {
-    Color primaryColor;
-    try {
-      primaryColor = _colorFromHex(hexPrimary);
-    } catch (_) {
-      primaryColor = const Color(0xFF1A3557); // Safe fallback
-    }
+    const Color primaryColor = Color(0xFF233E80);
 
-    final Color secondary = isDark ? primaryColor.withOpacity(0.8) : const Color(0xFF2E6DA4);
+    final Color secondary = isDark ? primaryColor.withOpacity(0.8) : const Color(0xFF9DBCE2);
     final Color accent = const Color(0xFFE8A020);
     final Color error = const Color(0xFFC62828);
 
@@ -50,8 +45,8 @@ class AppTheme {
       ),
       fontFamily: GoogleFonts.outfit().fontFamily,
       appBarTheme: AppBarTheme(
-        backgroundColor: isDark ? surface : primaryColor,
-        foregroundColor: isDark ? Colors.white : Colors.white,
+        backgroundColor: surface,
+        foregroundColor: onSurface,
         elevation: 0,
         centerTitle: false,
       ),
@@ -173,6 +168,6 @@ class AppTheme {
   }
 
   // Fallback static theme for places that might call AppTheme.lightTheme directly before observing changes
-  static ThemeData get lightTheme => buildTheme('#1A3557', false);
+  static ThemeData get lightTheme => buildTheme('#233E80', false);
 }
 

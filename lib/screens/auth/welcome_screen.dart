@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -81,7 +80,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                   child: Row(
                     children: [
-                      SvgPicture.asset('assets/images/sch_logo.svg', height: 40),
+                      Image.asset('assets/images/sch_logo.png', height: 40),
                       const Spacer(),
                       TextButton(
                         onPressed: () => context.go('/login'),
