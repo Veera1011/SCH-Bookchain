@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -129,15 +130,54 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                   ),
                                 ),
                                 const SizedBox(height: 32),
-                                Text(
-                                  'Your Intelligent\nLibrary.',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.outfit(
-                                    fontSize: MediaQuery.of(context).size.width > 600 ? 56 : 36,
-                                    fontWeight: FontWeight.w900,
-                                    height: 1.05,
-                                    color: colorScheme.onSurface,
-                                    letterSpacing: -1.0,
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.width > 600 ? 130 : 100,
+                                  child: Center(
+                                    child: AnimatedTextKit(
+                                      repeatForever: true,
+                                      pause: const Duration(milliseconds: 800),
+                                      animatedTexts: [
+                                        TypewriterAnimatedText(
+                                          'Supply Chain Hub',
+                                          textAlign: TextAlign.center,
+                                          cursor: '',
+                                          textStyle: GoogleFonts.outfit(
+                                            fontSize: MediaQuery.of(context).size.width > 600 ? 52 : 34,
+                                            fontWeight: FontWeight.w900,
+                                            height: 1.1,
+                                            color: colorScheme.onSurface,
+                                            letterSpacing: -1.0,
+                                          ),
+                                          speed: const Duration(milliseconds: 60),
+                                        ),
+                                        TypewriterAnimatedText(
+                                          'SCH Bookchain',
+                                          textAlign: TextAlign.center,
+                                          cursor: '',
+                                          textStyle: GoogleFonts.outfit(
+                                            fontSize: MediaQuery.of(context).size.width > 600 ? 52 : 34,
+                                            fontWeight: FontWeight.w900,
+                                            height: 1.1,
+                                            color: colorScheme.primary,
+                                            letterSpacing: -1.0,
+                                          ),
+                                          speed: const Duration(milliseconds: 60),
+                                        ),
+                                        TypewriterAnimatedText(
+                                          'Your Intelligent Library',
+                                          textAlign: TextAlign.center,
+                                          cursor: '',
+                                          textStyle: GoogleFonts.outfit(
+                                            fontSize: MediaQuery.of(context).size.width > 600 ? 44 : 28,
+                                            fontWeight: FontWeight.w900,
+                                            height: 1.1,
+                                            color: colorScheme.onSurface,
+                                            letterSpacing: -0.5,
+                                          ),
+                                          speed: const Duration(milliseconds: 55),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 24),
