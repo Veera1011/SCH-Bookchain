@@ -7,8 +7,14 @@ import '../../models/book_model.dart';
 class BookCard extends StatelessWidget {
   final BookModel book;
   final VoidCallback? onTap;
+  final double height;
 
-  const BookCard({super.key, required this.book, this.onTap});
+  const BookCard({
+    super.key,
+    required this.book,
+    this.onTap,
+    this.height = 280,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +22,7 @@ class BookCard extends StatelessWidget {
       onTap: onTap ?? () => context.push('/book-details/${book.id}'),
       child: GlassmorphicContainer(
         width: double.infinity,
-        height: 280, // Fixed height for grid consistency
+        height: height,
         borderRadius: 16,
         blur: 15,
         alignment: Alignment.center,

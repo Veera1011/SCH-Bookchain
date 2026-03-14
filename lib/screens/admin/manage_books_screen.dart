@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../../providers/providers.dart';
+import '../../widgets/book/book_card.dart';
 import '../../widgets/common/loading_shimmers.dart';
 
 class ManageBooksScreen extends ConsumerWidget {
@@ -52,50 +54,33 @@ class ManageBooksScreen extends ConsumerWidget {
             return const Center(child: Text('No books found in this location.'));
           }
 
-          return ListView.separated(
+          final size = MediaQuery.of(context).size;
+          final isDesktop = size.width > 900;
+
+          return MasonryGridView.count(
             padding: const EdgeInsets.all(16),
+            crossAxisCount: isDesktop ? 6 : (size.width > 600 ? 3 : 2),
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
             itemCount: books.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final book = books[index];
-              return Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2)),
-                  ],
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(12),
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      width: 50,
-                      height: 70,
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      child: book.coverUrl != null
-                          ? Image.network(book.coverUrl!, fit: BoxFit.cover)
-                          : Icon(Icons.book, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              return Stack(
+                children: [
+                  BookCard(book: book),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.black.withOpacity(0.6),
+                      radius: 18,
+                      child: IconButton(
+                        icon: const Icon(Icons.edit_note, color: Colors.white, size: 20),
+                        onPressed: () => context.push('/admin/books/add', extra: book),
+                      ),
                     ),
                   ),
-                  title: Text(
-                    book.title.toUpperCase(),
-                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      '${book.author}\n${book.availableCopies} COPIES LEFT',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
-                    ),
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.edit_note, color: Theme.of(context).colorScheme.primary),
-                    onPressed: () => context.push('/admin/books/add', extra: book),
-                  ),
-                ),
+                ],
               );
             },
           );

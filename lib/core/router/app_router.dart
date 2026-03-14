@@ -11,7 +11,7 @@ import '../../screens/auth/pending_approval_screen.dart';
 import '../../screens/auth/rejected_screen.dart';
 import '../../screens/employee/employee_home.dart';
 import '../../screens/employee/browse_books_screen.dart';
-import '../../screens/employee/book_details_screen.dart';
+import '../../screens/employee/book_details_flip_screen.dart';
 import '../../screens/employee/employee_discovery_screen.dart';
 import '../../screens/admin/admin_inventory_overview_screen.dart';
 import '../../screens/employee/borrow_book_screen.dart';
@@ -120,7 +120,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/book-details/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
-          return BookDetailsScreen(bookId: id);
+          return BookDetailsFlipScreen(bookId: id);
         },
       ),
       GoRoute(
