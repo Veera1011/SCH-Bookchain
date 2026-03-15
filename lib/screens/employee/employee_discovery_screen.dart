@@ -81,7 +81,7 @@ class EmployeeDiscoveryScreen extends ConsumerWidget {
                     crossAxisCount: 2,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
-                    childAspectRatio: 0.7,
+                    childAspectRatio: 0.55, // Adjusted for new card details
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) => BookCard(book: books[index]),

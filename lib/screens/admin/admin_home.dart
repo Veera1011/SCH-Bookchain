@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import '../../providers/providers.dart';
 import '../../widgets/navigation/responsive_navigation.dart';
+import '../../widgets/navigation/app_drawer.dart';
 import '../employee/ai_assistant_screen.dart';
 
 class AdminHome extends ConsumerWidget {
@@ -17,83 +18,7 @@ class AdminHome extends ConsumerWidget {
     return ResponsiveNavigation(
       selectedIndex: _calculateSelectedIndex(context),
       onDestinationSelected: (int index) => _onItemTapped(index, context),
-      title: Text('ADMIN DASHBOARD', style: TextStyle(fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface, fontSize: 14, letterSpacing: 1.2)),
-      drawer: Drawer(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        child: Column(
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
-                border: Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
-                  ),
-                ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/sch_logo.png',
-                      height: 40,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'ADMIN PORTAL',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            _buildDrawerItem(
-              context,
-              icon: Icons.settings_outlined,
-              label: 'THEME SETTINGS',
-              onTap: () {
-                Navigator.pop(context);
-                context.push('/admin/theme');
-              },
-            ),
-            _buildDrawerItem(
-              context,
-              icon: Icons.location_on_outlined,
-              label: 'MANAGE LOCATIONS',
-              onTap: () {
-                Navigator.pop(context);
-                context.push('/admin/locations');
-              },
-            ),
-            _buildDrawerItem(
-              context,
-              icon: Icons.help_outline,
-              label: 'HELP & SUPPORT',
-              onTap: () {
-                Navigator.pop(context);
-                launchUrl(Uri.parse('https://supplychainhub.com'));
-              },
-            ),
-            const Spacer(),
-            const Divider(indent: 20, endIndent: 20),
-            _buildDrawerItem(
-              context,
-              icon: Icons.logout,
-              label: 'SIGN OUT',
-              color: Colors.red,
-              onTap: () => ref.read(authServiceProvider).signOut(),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
+      drawer: const AppDrawer(isAdmin: true),
       destinations: [
         const NavigationDestination(
           icon: Icon(Icons.analytics_outlined),
@@ -169,30 +94,4 @@ class AdminHome extends ConsumerWidget {
     }
   }
 
-  Widget _buildDrawerItem(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    Color? color,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: ListTile(
-        leading: Icon(icon, color: color ?? Theme.of(context).colorScheme.onSurface.withOpacity(0.7), size: 20),
-        title: Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 11,
-            letterSpacing: 1,
-            color: color ?? Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        onTap: onTap,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.05),
-      ),
-    );
-  }
 }

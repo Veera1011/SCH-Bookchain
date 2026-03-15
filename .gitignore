@@ -1,16 +1,64 @@
-﻿# Flutter/Dart
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configurations and tasks you actually want to
+# keep. But it also contains settings, which you may or may not want to keep.
+# .vscode/
+
+# Flutter/Dart-related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/GeneratedConfig.xcconfig
+**/ios/Flutter/framework_info.json
+**/ios/Flutter/appbuildinfo.json
+**/ios/GeneratedPluginRegistrant.h
+**/ios/GeneratedPluginRegistrant.m
+**/lib/generated_plugin_registrant.dart
+**/bin/cache/
+**/bin/cache/artifacts/
+**/bin/cache/dart-sdk/
+**/bin/cache/flutter_sdk/
+**/bin/cache/pkg/
+**/bin/cache/sdk/
+**/bin/cache/unzipped/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
-build/
+.pub-cache/
+.pub/
+/build/
 
-# Platform folders not needed for web hosting
-windows/
-macos/
-linux/
-android/
-ios/
+# Symbolication related
+app.*.symbols
 
-# Env/secrets
-.env
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will create this file for you and it should not be checked into
+# version control.
+android/key.properties
+android/app/src/main/res/raw/google_services.json
+
+# Local env files
+.env*
+!.env.example
+
+# Exceptions to above rules (if any)

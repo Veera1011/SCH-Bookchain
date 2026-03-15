@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:page_flip_builder/page_flip_builder.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:book_flip/book_flip.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:ui';
 import '../../providers/providers.dart';
 import '../../models/book_model.dart';
-import '../../widgets/book/book_details_dialog.dart';
 
 class BookDetailsFlipScreen extends ConsumerWidget {
   final String bookId;
@@ -15,20 +14,123 @@ class BookDetailsFlipScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bookAsync = ref.watch(bookByIdProvider(bookId));
-    final flipKey = GlobalKey<PageFlipBuilderState>();
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.black, // Fallback
       body: bookAsync.when(
-        data: (book) => SafeArea(
-          child: Center(
-            child: PageFlipBuilder(
-              key: flipKey,
-              frontBuilder: (_) => _buildFront(context, book, flipKey),
-              backBuilder: (_) => _buildBack(context, book, ref, flipKey),
-              flipAxis: Axis.horizontal,
+        data: (book) => Stack(
+          children: [
+            // Modern Vibrant Background: Mesh Gradient Simulation
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      const Color(0xFF0F2027),
+                      const Color(0xFF203A43),
+                      const Color(0xFF2C5364),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
+            
+            // Animated-style blobs for mesh effect
+            Positioned(
+              top: -100,
+              right: -100,
+              child: Container(
+                width: 400,
+                height: 400,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF43C6AC).withValues(alpha: 0.15),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -50,
+              left: -50,
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFFF8FFAE).withValues(alpha: 0.1),
+                ),
+              ),
+            ),
+            
+            // Blurred Cover Overlay
+            if (book.coverUrl != null)
+              Positioned.fill(
+                child: Opacity(
+                  opacity: 0.15,
+                  child: Image.network(
+                    book.coverUrl!,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 80.0, sigmaY: 80.0),
+                child: Container(
+                  color: Colors.transparent,
+                ),
+              ),
+            ),
+            
+            // Content
+            SafeArea(
+              child: Column(
+                children: [
+                  AppBar(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    leading: IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final bookWidth = constraints.maxWidth * 0.85;
+                        final bookHeight = constraints.maxHeight * 0.8;
+                        
+                        return Center(
+                          child: BookFlipWidget(
+                            coverPage: _buildFront(context, book, bookWidth, bookHeight),
+                            content: [
+                              _buildSummaryPage(context, book, bookWidth, bookHeight),
+                              _buildSpecsPage(context, book, bookWidth, bookHeight),
+                              _buildActionPage(context, book, ref, bookWidth, bookHeight),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Text(
+                      'SWIPE TO READ MORE',
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e', style: const TextStyle(color: Colors.white))),
@@ -36,12 +138,13 @@ class BookDetailsFlipScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFront(BuildContext context, BookModel book, GlobalKey<PageFlipBuilderState> flipKey) {
-    return GestureDetector(
-      onTap: () => flipKey.currentState?.flip(),
+  Widget _buildFront(BuildContext context, BookModel book, double width, double height) {
+    return Container(
+      width: width,
+      height: height,
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.85,
-        height: MediaQuery.of(context).size.height * 0.7,
+        width: width,
+        height: height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
@@ -57,29 +160,28 @@ class BookDetailsFlipScreen extends ConsumerWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              book.coverUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: book.coverUrl!,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      color: Colors.grey[900],
-                      child: const Icon(Icons.book, size: 100, color: Colors.white24),
-                    ),
+              if (book.coverUrl != null)
+                Image.network(
+                  book.coverUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(color: Colors.grey[900]),
+                )
+              else
+                Container(color: Colors.grey[900]),
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.9),
+                      Colors.black87,
                     ],
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(32.0),
+                padding: const EdgeInsets.all(24.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,49 +190,22 @@ class BookDetailsFlipScreen extends ConsumerWidget {
                       book.title.toUpperCase(),
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 32,
+                        fontSize: 24,
                         fontWeight: FontWeight.w900,
-                        letterSpacing: -1,
+                        letterSpacing: 1.2,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Text(
                       'BY ${book.author.toUpperCase()}',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                      style: const TextStyle(
+                        color: Colors.white70,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
+                        letterSpacing: 1,
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        const Icon(Icons.touch_app, color: Colors.white54, size: 16),
-                        const SizedBox(width: 8),
-                        Text(
-                          'TAP TO FLIP',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
-                ),
-              ),
-              Positioned(
-                top: 16,
-                left: 16,
-                child: IconButton(
-                  icon: const CircleAvatar(
-                    backgroundColor: Colors.black54,
-                    child: Icon(Icons.close, color: Colors.white, size: 20),
-                  ),
-                  onPressed: () => context.pop(),
                 ),
               ),
             ],
@@ -140,99 +215,199 @@ class BookDetailsFlipScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBack(BuildContext context, BookModel book, WidgetRef ref, GlobalKey<PageFlipBuilderState> flipKey) {
+  Widget _buildSummaryPage(BuildContext context, BookModel book, double width, double height) {
     final colorScheme = Theme.of(context).colorScheme;
     
     return Container(
-      width: MediaQuery.of(context).size.width * 0.85,
-      height: MediaQuery.of(context).size.height * 0.7,
-      padding: const EdgeInsets.all(24),
+      width: width,
+      height: height,
+      padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.white.withOpacity(0.05),
-            blurRadius: 20,
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'BOOK DETAILS',
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 12,
-                  letterSpacing: 2,
-                  color: Colors.grey,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.flip_to_front, size: 20),
-                onPressed: () => flipKey.currentState?.flip(), 
-              ),
-            ],
+          Text(
+            'SUMMARY',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2,
+              color: colorScheme.primary,
+            ),
           ),
-          const Divider(height: 32),
+          const SizedBox(height: 24),
           Expanded(
             child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    book.description ?? 'No description available for this masterpiece.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      height: 1.6,
-                      color: colorScheme.onSurface.withOpacity(0.8),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'GENRES',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, letterSpacing: 1.5),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: book.genre.map((g) => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
-                      ),
-                      child: Text(
-                        g.toUpperCase(),
-                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: colorScheme.primary),
-                      ),
-                    )).toList(),
-                  ),
-                  const SizedBox(height: 32),
-                  BookDetailsDialog(book: book),
-                ],
+              child: Text(
+                book.description ?? 'No description available for this book.',
+                style: const TextStyle(
+                  fontSize: 16,
+                  height: 1.6,
+                  color: Colors.black87,
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: book.genre.map((g) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                g.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
+              ),
+            )).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSpecsPage(BuildContext context, BookModel book, double width, double height) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Container(
+      width: width,
+      height: height,
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'SPECIFICATIONS',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2,
+              color: colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 32),
+          _specRow('Language', book.language.toUpperCase()),
+          _specRow('Condition', book.condition.toUpperCase()),
+          _specRow('Rating', '${book.avgRating} / 5.0 (${book.ratingCount} reviews)'),
+          _specRow('Added', book.createdAt.toString().split(' ')[0]),
+        ],
+      ),
+    );
+  }
+
+  Widget _specRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionPage(BuildContext context, BookModel book, WidgetRef ref, double width, double height) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Container(
+      width: width,
+      height: height,
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.library_books, size: 64, color: Colors.indigo),
+          const SizedBox(height: 24),
+          Text(
+            book.title.toUpperCase(),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(height: 8),
+           Text(
+            'BY ${book.author.toUpperCase()}',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 48),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceVariant.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Column(
+                  children: [
+                    const Text('COPIES AVAILABLE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(
+                      '${book.availableCopies} / ${book.totalCopies}',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const Spacer(),
           SizedBox(
             width: double.infinity,
+            height: 56,
             child: ElevatedButton(
-              onPressed: book.availableCopies > 0
+              onPressed: book.availableCopies > 0 
                   ? () => context.push('/borrow/${book.id}')
                   : null,
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                backgroundColor: colorScheme.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: Text(book.availableCopies > 0 ? 'BORROW NOW' : 'OUT OF STOCK'),
+              child: const Text('BORROW THIS BOOK', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
             ),
           ),
         ],

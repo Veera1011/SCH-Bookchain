@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 class ResponsiveNavigation extends StatelessWidget {
@@ -77,7 +76,7 @@ class ResponsiveNavigation extends StatelessWidget {
           color: colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),

@@ -5,7 +5,7 @@ SCH BookChain is a premium, interactive library management application designed 
 ## ✨ Key Features
 - 🚀 **Modern Discovery**: Responsive masonry grid and featured carousels.
 - 📖 **Interactive Details**: 3D page-flip animations for a realistic book-reading feel.
-- 🤖 **AI Assistant**: Intelligent library companion powered by Google Gemini.
+- 🤖 **AI Assistant**: Intelligent library companion
 - 📊 **Admin Dashboard**: Visual analytics, inventory control, and user management.
 - 🔒 **Secure Onboarding**: Admin-reviewed registrations with location-based resource locking.
 
@@ -20,7 +20,7 @@ SCH BookChain is a premium, interactive library management application designed 
 ### Prerequisites
 - Flutter SDK (Latest Stable)
 - Supabase Project
-- Gemini API Key
+- Groq API Key
 
 ### Configuration
 1. Clone the repository.
@@ -32,7 +32,4 @@ SCH BookChain is a premium, interactive library management application designed 
 flutter run
 ```
 
-## 📄 Documentation
-For detailed information, please refer to:
-- [Technical Documentation](.gemini/antigravity/brain/89513211-7439-4051-9de8-26069d9cd8dd/technical_documentation.md)
-- [Functional Documentation](.gemini/antigravity/brain/89513211-7439-4051-9de8-26069d9cd8dd/functional_documentation.md)
+

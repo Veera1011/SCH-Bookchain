@@ -117,7 +117,6 @@ class BookDetailScreen extends ConsumerWidget {
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                     const SizedBox(height: 8),
-                    Text('ISBN: ${book.isbn ?? 'N/A'}'),
                     Text('Language: ${book.language}'),
                     Text('Condition: ${book.condition}'),
                     const SizedBox(height: 80), // Padding for bottom button

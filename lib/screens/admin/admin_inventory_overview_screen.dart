@@ -70,9 +70,9 @@ class AdminInventoryOverviewScreen extends ConsumerWidget {
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.7,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 0.55, // Adjusted for new card height
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) => BookCard(book: books[index]),
@@ -116,7 +116,7 @@ class AdminInventoryOverviewScreen extends ConsumerWidget {
             ),
           ),
           SizedBox(
-            height: 220, // Adjusted for BookCard
+            height: 260, // Adjusted for new responsive BookCard
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
@@ -126,8 +126,8 @@ class AdminInventoryOverviewScreen extends ConsumerWidget {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: SizedBox(
-                    width: 150, // Fixed width for horizontal card
-                    child: BookCard(book: book, height: 200),
+                    width: 150, // Fixed width for horizontal scrolling cards
+                    child: BookCard(book: book),
                   ),
                 );
               },
