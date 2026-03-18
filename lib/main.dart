@@ -13,12 +13,12 @@ import 'providers/providers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await Supabase.initialize(
     url: SupabaseConstants.supabaseUrl,
     anonKey: SupabaseConstants.supabaseAnonKey,
   );
-  
+
   final sharedPreferences = await SharedPreferences.getInstance();
 
   runApp(
@@ -42,7 +42,7 @@ class SchBooksApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final appSettingsAsync = ref.watch(appSettingsProvider);
-    
+
     // Evaluate current theme based on Supabase settings
     final themeData = appSettingsAsync.when(
       data: (settings) => AppTheme.buildTheme(
@@ -52,9 +52,9 @@ class SchBooksApp extends ConsumerWidget {
       loading: () => AppTheme.lightTheme,
       error: (_, __) => AppTheme.lightTheme,
     );
-    
+
     return GetMaterialApp.router(
-      title: 'SCH Book Management System',
+      title: 'SCH OneShelf',
       theme: themeData,
       routeInformationParser: router.routeInformationParser,
       routerDelegate: router.routerDelegate,
